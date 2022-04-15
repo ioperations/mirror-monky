@@ -1,11 +1,13 @@
 #include "Repl.hpp"
+
+#include <algorithm>
+#include <exception>
+#include <iostream>
+
 #include "Environment.hpp"
 #include "Evaluator.hpp"
 #include "Lexer.hpp"
 #include "Parser.hpp"
-#include <algorithm>
-#include <exception>
-#include <iostream>
 
 using namespace std;
 
@@ -13,7 +15,6 @@ void print_anthor_name();
 void print_parser_errors(vector<string> errors);
 
 void Repl::start() {
-
     print_anthor_name();
 
     const string PROMPT = ">> ";
@@ -33,6 +34,7 @@ void Repl::start() {
         //     cout << *tok << endl;
         // }
 
+        //
         auto program = p.parse_program();
         if (p.errors().size() != 0) {
             print_parser_errors(p.errors());
