@@ -4,6 +4,7 @@
 #include <map>
 #include <string>
 #include <vector>
+
 #include "Constant.hpp"
 
 using namespace mirror::token;
@@ -12,25 +13,25 @@ using namespace std;
 
 namespace mirror {
 class Token {
-  public:
+   public:
     TOKEN_TYPE m_type;
     string m_literal;
 
-  public:
+   public:
     static map<string, TOKEN_TYPE> m_keywords;
     static TOKEN_TYPE lookup_ident(string ident);
 
-  public:
+   public:
     Token() = default;
-    Token(Token &token) {
+    Token(Token& token) {
         m_type = token.m_type;
         m_literal = token.m_literal;
     };
     Token(TOKEN_TYPE token_type, string str);
     ~Token();
 
-    friend ostream &operator<<(ostream &os, const Token &t);
+    friend ostream& operator<<(ostream& os, const Token& t);
     static string token_type_value(TOKEN_TYPE t);
 };
-}
+}  // namespace mirror
 #endif /* TOKEN_HPP */

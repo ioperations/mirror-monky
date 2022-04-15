@@ -1,11 +1,12 @@
 #ifndef HASH_HPP
 #define HASH_HPP
 
+#include <map>
+#include <memory>
+
 #include "HashKey.hpp"
 #include "HashPair.hpp"
 #include "Object.hpp"
-#include <map>
-#include <memory>
 
 using namespace std;
 using namespace mirror;
@@ -13,22 +14,22 @@ using namespace object;
 
 namespace mirror {
 class Hash : public Object {
-  public:
+   public:
     unique_ptr<map<HashKey, shared_ptr<HashPair>>> m_pairs;
 
     Hash(unique_ptr<map<HashKey, shared_ptr<HashPair>>> p)
         : m_pairs(std::move(p)) {
         auto it = m_pairs->begin();
+        (void)it;
     };
 
-  public:
+   public:
     OBJECT_TYPE type() { return OBJECT_TYPE::HASH_OBJ; };
     string Inspect() {
-
         string ret = "";
         ret += "{";
 
-        auto &pairs = *m_pairs;
+        auto& pairs = *m_pairs;
         auto it = pairs.begin();
         while (it != pairs.end()) {
             auto hash_pair = it->second;
@@ -43,5 +44,5 @@ class Hash : public Object {
         return ret;
     };
 };
-} // namespace mirror
+}  // namespace mirror
 #endif /* HASH_HPP */

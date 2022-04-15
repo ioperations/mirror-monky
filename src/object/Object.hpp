@@ -1,10 +1,11 @@
 #ifndef OBJECT_HPP
 #define OBJECT_HPP
 
-#include "./Constant.hpp"
 #include <iostream>
 #include <string>
 #include <vector>
+
+#include "./Constant.hpp"
 
 using namespace mirror;
 using namespace object;
@@ -12,7 +13,7 @@ using namespace std;
 
 namespace mirror {
 class Object {
-  public:
+   public:
     virtual OBJECT_TYPE type() { return OBJECT_TYPE::NULL_OBJ; };
     virtual string Inspect() { return ""; };
     virtual ~Object(){};
@@ -22,5 +23,5 @@ class Object {
     }
 };
 
-}
+}  // namespace mirror
 #endif /* OBJECT_HPP */

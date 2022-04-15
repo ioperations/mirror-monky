@@ -1,28 +1,29 @@
 #ifndef EXPRESSIONSTATEMENT_HPP
 #define EXPRESSIONSTATEMENT_HPP
 
-#include "Expression.hpp"
-#include "Identifier.hpp"
-#include "Statement.hpp"
-#include "Token.hpp"
 #include <memory>
+
+#include "../token/Token.hpp"
+#include "./basic/Expression.hpp"
+#include "./basic/Statement.hpp"
+#include "Identifier.hpp"
 
 using namespace std;
 namespace mirror {
 class ExpressionStatement : public Statement {
-  public:
-    unique_ptr<Token> m_token; // the token.LET token
+   public:
+    unique_ptr<Token> m_token;  // the token.LET token
     unique_ptr<Expression> m_expression;
 
-  public:
-    ExpressionStatement(Token &token) : m_token(new Token(token)){};
+   public:
+    ExpressionStatement(Token& token) : m_token(new Token(token)){};
 
-  public:
+   public:
     string token_literal() { return m_token->m_literal; };
     string to_string() {
         string ret = m_expression->to_string();
         return ret;
     };
 };
-} // namespace mirror
+}  // namespace mirror
 #endif /* EXPRESSIONSTATEMENT_HPP */

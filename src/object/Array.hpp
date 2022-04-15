@@ -1,6 +1,8 @@
 #ifndef ARRAY_HPP
 #define ARRAY_HPP
 
+#include <memory>
+
 #include "Object.hpp"
 
 using namespace std;
@@ -9,12 +11,12 @@ using namespace object;
 
 namespace mirror {
 class Array : public Object {
-  public:
+   public:
     vector<shared_ptr<Object>> m_elements;
 
     Array(vector<shared_ptr<Object>> v) : m_elements(v){};
 
-  public:
+   public:
     OBJECT_TYPE type() { return OBJECT_TYPE::ARRAY_OBJ; };
     string Inspect() {
         string ret = "";
@@ -33,5 +35,5 @@ class Array : public Object {
     };
 };
 
-}
+}  // namespace mirror
 #endif /* ARRAY_HPP */

@@ -1,9 +1,10 @@
 #ifndef INTEGER_HPP
 #define INTEGER_HPP
 
+#include <memory>
+
 #include "Hashable.hpp"
 #include "Object.hpp"
-#include <memory>
 
 using namespace std;
 using namespace mirror;
@@ -11,21 +12,21 @@ using namespace object;
 
 namespace mirror {
 class Integer : public Object, public Hashable {
-  public:
+   public:
     int64_t m_value;
 
-  public:
+   public:
     Integer(int64_t value) : m_value(value){};
 
-  public:
-    OBJECT_TYPE type() override{ return OBJECT_TYPE::INTEGER_OBJ; };
-    string Inspect() override{ return to_string(m_value); };
+   public:
+    OBJECT_TYPE type() override { return OBJECT_TYPE::INTEGER_OBJ; };
+    string Inspect() override { return to_string(m_value); };
 
-  public:
+   public:
     HashKey hash_key() override {
-         HashKey hk(type(), uint64_t(m_value));
-		 return hk;
+        HashKey hk(type(), uint64_t(m_value));
+        return hk;
     };
 };
-}
+}  // namespace mirror
 #endif /* INTEGER_HPP */

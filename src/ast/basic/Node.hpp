@@ -8,12 +8,12 @@ using namespace std;
 namespace mirror {
 // The base Node interface
 class Node {
-  public:
+   public:
     virtual ~Node(){};
 
-  public:
+   public:
     virtual string token_literal() = 0;
     virtual string to_string() = 0;
 };
-} // namespace mirror
+}  // namespace mirror
 #endif /* NODE_HPP */

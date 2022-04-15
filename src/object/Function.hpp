@@ -1,12 +1,13 @@
 #ifndef FUNCTION_HPP
 #define FUNCTION_HPP
 
-#include "Environment.hpp"
-#include "BlockStatement.hpp"
 #include <memory>
 #include <string>
 #include <vector>
+
+#include "../ast/BlockStatement.hpp"
 #include "Constant.hpp"
+#include "Environment.hpp"
 
 using namespace mirror;
 using namespace object;
@@ -14,27 +15,25 @@ using namespace object;
 using namespace std;
 namespace mirror {
 class Function : public Object {
-  public:
+   public:
     using t_params = shared_ptr<vector<unique_ptr<Identifier>>>;
     t_params m_parameters;
     shared_ptr<BlockStatement> m_body;
     shared_ptr<Environment> m_env;
 
-    Function(t_params params, shared_ptr<BlockStatement> block, Environment *env) {
-
+    Function(t_params params, shared_ptr<BlockStatement> block,
+             Environment* env) {
         m_parameters = params;
         m_body = block;
-		m_env = env->get_shared();
+        m_env = env->get_shared();
     };
 
-  public:
+   public:
     OBJECT_TYPE type() { return OBJECT_TYPE::FUNCTION_OBJ; };
     string Inspect() {
         string ret = "";
         ret += "fn";
         ret += "(";
-
-
 
         // for (int i = 0; i < m_parameters.size(); i++) {
         //     auto &ident = *m_parameters[i];
@@ -54,5 +53,5 @@ class Function : public Object {
         return ret;
     };
 };
-}
+}  // namespace mirror
 #endif /* FUNCTION_HPP */

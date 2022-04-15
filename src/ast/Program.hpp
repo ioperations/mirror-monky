@@ -4,17 +4,17 @@
 #include <memory>
 #include <vector>
 
-#include "Expression.hpp"
-#include "Statement.hpp"
+#include "./basic/Expression.hpp"
+#include "./basic/Statement.hpp"
 
 using namespace std;
 namespace mirror {
 class Program : public Node {
-  public:
+   public:
     vector<unique_ptr<Statement>> m_statements;
 
-  public:
-  public:
+   public:
+   public:
     string token_literal() override {
         if (m_statements.size() > 0) {
             return m_statements[0]->token_literal();
@@ -32,5 +32,5 @@ class Program : public Node {
         return ret;
     };
 };
-} // namespace mirror
+}  // namespace mirror
 #endif /* PROGRAM_HPP */

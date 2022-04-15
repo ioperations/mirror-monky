@@ -5,15 +5,15 @@
 
 using namespace std;
 
-
 namespace mirror {
 // All expression nodes implement this
 class Expression : public Node {
-  public:
+   public:
     virtual ~Expression(){};
-  public:
+
+   public:
     virtual string token_literal() override { return ""; };
     virtual string to_string() override { return ""; };
 };
-}
+}  // namespace mirror
 #endif /* EXPRESSION_HPP */

@@ -9,12 +9,12 @@ using namespace object;
 
 namespace mirror {
 class Error : public Object {
-  public:
+   public:
     string m_message;
 
-  public:
+   public:
     OBJECT_TYPE type() { return OBJECT_TYPE::ERROR_OBJ; };
     string Inspect() { return "Error: " + m_message; };
 };
-}
+}  // namespace mirror
 #endif /* ERROR_HPP */

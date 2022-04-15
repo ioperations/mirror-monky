@@ -1,18 +1,20 @@
 #ifndef HASHPAIR_HPP
 #define HASHPAIR_HPP
 
+#include <memory>
+
 #include "Object.hpp"
 
 using namespace std;
 
 namespace mirror {
 class HashPair : public Object {
-  public:
+   public:
     std::shared_ptr<Object> m_key;
     std::shared_ptr<Object> m_value;
 
     HashPair(shared_ptr<Object> key, shared_ptr<Object> value)
         : m_key(key), m_value(value){};
 };
-}
+}  // namespace mirror
 #endif /* HASHPAIR_HPP */

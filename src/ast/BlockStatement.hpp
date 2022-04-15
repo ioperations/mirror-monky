@@ -1,33 +1,34 @@
 #ifndef BLOCKSTATEMENT_HPP
 #define BLOCKSTATEMENT_HPP
 
-#include "LetStatement.hpp"
-#include "Statement.hpp"
-#include "Token.hpp"
 #include <memory>
 #include <vector>
+
+#include "../token/Token.hpp"
+#include "./basic/Statement.hpp"
+#include "LetStatement.hpp"
 
 using namespace std;
 namespace mirror {
 class BlockStatement : public Statement {
-  public:
+   public:
     std::unique_ptr<Token> m_token;
     vector<unique_ptr<Statement>> m_statements;
 
-  public:
-    BlockStatement(Token &token) : m_token(new Token(token)) {}
-    BlockStatement(BlockStatement &other) {
+   public:
+    BlockStatement(Token& token) : m_token(new Token(token)) {}
+    BlockStatement(BlockStatement& other) {
         m_token = make_unique<Token>(*other.m_token);
         for (int i = 0; i < other.m_statements.size(); i++) {
             auto stmt = other.m_statements[i].get();
 
-            if (auto cast_node = dynamic_cast<LetStatement *>(stmt)) {
+            if (auto cast_node = dynamic_cast<LetStatement*>(stmt)) {
                 m_statements[i] = make_unique<LetStatement>(*cast_node);
             }
         }
     };
 
-  public:
+   public:
     string token_literal() override { return m_token->m_literal; };
     string to_string() override {
         string ret = "";
@@ -38,5 +39,5 @@ class BlockStatement : public Statement {
         return ret;
     };
 };
-}
+}  // namespace mirror
 #endif /* BLOCKSTATEMENT_HPP */

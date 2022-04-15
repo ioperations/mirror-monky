@@ -1,6 +1,8 @@
 #ifndef PARSER_HPP
 #define PARSER_HPP
 
+#include <functional>
+
 #include "BlockStatement.hpp"
 #include "ExpressionStatement.hpp"
 #include "LetStatement.hpp"
@@ -16,21 +18,21 @@ using namespace token;
 namespace mirror {
 enum class PRECEDENCE {
     LOWEST,
-    EQUALS,      // ==
-    LESSGREATER, // > or <
-    SUM,         // +
-    PRODUCT,     // *
-    PREFIX,      // -X or !X
-    CALL,        // myFunction(X)
-    INDEX        // array[index]
+    EQUALS,       // ==
+    LESSGREATER,  // > or <
+    SUM,          // +
+    PRODUCT,      // *
+    PREFIX,       // -X or !X
+    CALL,         // myFunction(X)
+    INDEX         // array[index]
 };
 
 class Parser {
-  public:
-    Parser(Lexer &l);
+   public:
+    Parser(Lexer& l);
     Parser(string input);
 
-  private:
+   private:
     unique_ptr<Lexer> m_lexer;
     vector<string> m_errors;
 
@@ -43,10 +45,10 @@ class Parser {
     map<TOKEN_TYPE, fn_prefix> m_prefix_fns;
     map<TOKEN_TYPE, fn_infix> m_infix_fns;
 
-  private:
+   private:
     void init();
 
-  public:
+   public:
     using t_map_precedence = map<TOKEN_TYPE, PRECEDENCE>;
     const t_map_precedence c_precedences = {
         {TOKEN_TYPE::EQ, PRECEDENCE::EQUALS},
@@ -61,11 +63,11 @@ class Parser {
         {TOKEN_TYPE::LBRACKET, PRECEDENCE::INDEX},
     };
 
-  public:
+   public:
     shared_ptr<Program> parse_program();
     vector<string> errors();
 
-  private:
+   private:
     void next_token();
 
     unique_ptr<Statement> parse_statement();
@@ -83,7 +85,7 @@ class Parser {
     void peek_error(TOKEN_TYPE t);
     void no_prefix_parse_fn_error(TOKEN_TYPE t);
 
-  private:
+   private:
     void register_prefix(TOKEN_TYPE token_type, fn_prefix fn);
     void register_infix(TOKEN_TYPE token_type, fn_infix fn);
 
@@ -102,12 +104,12 @@ class Parser {
     unique_ptr<vector<unique_ptr<Identifier>>> parse_function_parameters();
     unique_ptr<Expression> parse_call_expression(unique_ptr<Expression> exp);
     unique_ptr<vector<unique_ptr<Expression>>> parse_call_arguments();
-    unique_ptr<vector<unique_ptr<Expression>>>
-    parse_expression_list(TOKEN_TYPE end);
+    unique_ptr<vector<unique_ptr<Expression>>> parse_expression_list(
+        TOKEN_TYPE end);
     unique_ptr<Expression> parse_array_literal();
     unique_ptr<Expression> parse_string_literal();
-	unique_ptr<Expression> parse_index_expression(unique_ptr<Expression> left);
-	unique_ptr<Expression> parse_hash_literal();
+    unique_ptr<Expression> parse_index_expression(unique_ptr<Expression> left);
+    unique_ptr<Expression> parse_hash_literal();
 };
-}
+}  // namespace mirror
 #endif /* PARSER_HPP */

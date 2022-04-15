@@ -5,3 +5,6 @@ build
 .projectile
 .gitignore
 .clang-format
+.ccls-cache
+.cache
+compile_commands.json

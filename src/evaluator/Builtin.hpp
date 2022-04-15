@@ -1,11 +1,12 @@
 #ifndef BUILTIN_HPP
 #define BUILTIN_HPP
 
-#include "Object.hpp"
-#include "../object/Constant.hpp"
 #include <functional>
 #include <iostream>
+#include <memory>
 
+#include "../object/Constant.hpp"
+#include "Object.hpp"
 
 using namespace std;
 using namespace mirror;
@@ -13,26 +14,26 @@ using namespace object;
 
 namespace mirror {
 class Any_Function {
-  public:
+   public:
     virtual ~Any_Function() {}
 };
 
 template <typename Ret, typename... Args>
 class FunctionCommon : public Any_Function, public std::function<Ret(Args...)> {
-  public:
+   public:
     template <typename T>
-    FunctionCommon(T &f) : std::function<Ret(Args...)>(f) {}
+    FunctionCommon(T& f) : std::function<Ret(Args...)>(f) {}
 };
 
 class Builtin : public Object {
-  public:
+   public:
     shared_ptr<Any_Function> m_fn;
 
-    Builtin(shared_ptr<Any_Function> f):m_fn(f){};
+    Builtin(shared_ptr<Any_Function> f) : m_fn(f){};
 
-  public:
+   public:
     OBJECT_TYPE type() { return OBJECT_TYPE::BUILTIN_OBJ; };
     string Inspect() { return "builtin function"; };
 };
-}
+}  // namespace mirror
 #endif /* BUILTIN_HPP */

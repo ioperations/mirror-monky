@@ -7,13 +7,11 @@ using namespace std;
 using namespace mirror;
 using namespace object;
 
-
 namespace mirror {
 class Null : public Object {
-
-  public:
+   public:
     OBJECT_TYPE type() { return OBJECT_TYPE::NULL_OBJ; };
     string Inspect() { return "null"; };
 };
-}
+}  // namespace mirror
 #endif /* NULL_HPP */

@@ -1,4 +1,5 @@
 #include "Lexer.hpp"
+
 #include <algorithm>
 #include <iostream>
 #include <iterator>
@@ -11,12 +12,11 @@ using namespace mirror::token;
 
 using namespace std;
 
-Lexer::Lexer(std::string &str) : m_input(str.begin(), str.end()) {
+Lexer::Lexer(std::string& str) : m_input(str.begin(), str.end()) {
     read_char();
 }
 
-Lexer::~Lexer() {
-}
+Lexer::~Lexer() {}
 
 void Lexer::read_char() {
     if (m_readPosition >= m_input.size()) {
@@ -38,85 +38,85 @@ unique_ptr<Token> Lexer::next_token() {
     skip_whitespace();
 
     switch (m_ch) {
-    case '=':
-        if (peed_char() == '=') {
-            tok = make_unique<Token>(TOKEN_TYPE::EQ, capture_char(2));
-        } else {
-            tok = make_unique<Token>(TOKEN_TYPE::ASSIGN, string(1, m_ch));
-        }
-        break;
-    case '+':
-        tok = make_unique<Token>(TOKEN_TYPE::PLUS, string(1, m_ch));
-        break;
-    case '-':
-        tok = make_unique<Token>(TOKEN_TYPE::MINUS, string(1, m_ch));
-        break;
-    case '!':
-        if (peed_char() == '=') {
-            tok = make_unique<Token>(TOKEN_TYPE::NOT_EQ, capture_char(2));
-        } else {
-            tok = make_unique<Token>(TOKEN_TYPE::BANG, string(1, m_ch));
-        }
-        break;
-    case '/':
-        tok = make_unique<Token>(TOKEN_TYPE::SLASH, string(1, m_ch));
-        break;
-    case '*':
-        tok = make_unique<Token>(TOKEN_TYPE::ASTERISK, string(1, m_ch));
-        break;
-    case '<':
-        tok = make_unique<Token>(TOKEN_TYPE::LT, string(1, m_ch));
-        break;
-    case '>':
-        tok = make_unique<Token>(TOKEN_TYPE::GT, string(1, m_ch));
-        break;
-    case ';':
-        tok = make_unique<Token>(TOKEN_TYPE::SEMICOLON, string(1, m_ch));
-        break;
-    case ':':
-        tok = make_unique<Token>(TOKEN_TYPE::COLON, string(1, m_ch));
-        break;
-    case ',':
-        tok = make_unique<Token>(TOKEN_TYPE::COMMA, string(1, m_ch));
-        break;
-    case '{':
-        tok = make_unique<Token>(TOKEN_TYPE::LBRACE, string(1, m_ch));
-        break;
-    case '}':
-        tok = make_unique<Token>(TOKEN_TYPE::RBRACE, string(1, m_ch));
-        break;
-    case '(':
-        tok = make_unique<Token>(TOKEN_TYPE::LPAREN, string(1, m_ch));
-        break;
-    case ')':
-        tok = make_unique<Token>(TOKEN_TYPE::RPAREN, string(1, m_ch));
-        break;
-    case '[':
-        tok = make_unique<Token>(TOKEN_TYPE::LBRACKET, string(1, m_ch));
-        break;
-    case ']':
-        tok = make_unique<Token>(TOKEN_TYPE::RBRACKET, string(1, m_ch));
-        break;
-    case '"':
-        tok = make_unique<Token>(TOKEN_TYPE::STRING, read_string());
-        break;
-    case 0:
-        tok = make_unique<Token>(TOKEN_TYPE::EOF_, string(""));
-        break;
-    default:
-        if (is_letter(m_ch)) {
-            string literal = read_identifier();
-            tok = make_unique<Token>(Token::lookup_ident(literal), literal);
-            return tok;
-        } else if (is_digit(m_ch)) {
-            string literal = read_number();
-            tok = make_unique<Token>(TOKEN_TYPE::INT, literal);
-            return tok;
-        } else {
-            tok = make_unique<Token>(TOKEN_TYPE::ILLEGAL, string(1, m_ch));
-        }
+        case '=':
+            if (peed_char() == '=') {
+                tok = make_unique<Token>(TOKEN_TYPE::EQ, capture_char(2));
+            } else {
+                tok = make_unique<Token>(TOKEN_TYPE::ASSIGN, string(1, m_ch));
+            }
+            break;
+        case '+':
+            tok = make_unique<Token>(TOKEN_TYPE::PLUS, string(1, m_ch));
+            break;
+        case '-':
+            tok = make_unique<Token>(TOKEN_TYPE::MINUS, string(1, m_ch));
+            break;
+        case '!':
+            if (peed_char() == '=') {
+                tok = make_unique<Token>(TOKEN_TYPE::NOT_EQ, capture_char(2));
+            } else {
+                tok = make_unique<Token>(TOKEN_TYPE::BANG, string(1, m_ch));
+            }
+            break;
+        case '/':
+            tok = make_unique<Token>(TOKEN_TYPE::SLASH, string(1, m_ch));
+            break;
+        case '*':
+            tok = make_unique<Token>(TOKEN_TYPE::ASTERISK, string(1, m_ch));
+            break;
+        case '<':
+            tok = make_unique<Token>(TOKEN_TYPE::LT, string(1, m_ch));
+            break;
+        case '>':
+            tok = make_unique<Token>(TOKEN_TYPE::GT, string(1, m_ch));
+            break;
+        case ';':
+            tok = make_unique<Token>(TOKEN_TYPE::SEMICOLON, string(1, m_ch));
+            break;
+        case ':':
+            tok = make_unique<Token>(TOKEN_TYPE::COLON, string(1, m_ch));
+            break;
+        case ',':
+            tok = make_unique<Token>(TOKEN_TYPE::COMMA, string(1, m_ch));
+            break;
+        case '{':
+            tok = make_unique<Token>(TOKEN_TYPE::LBRACE, string(1, m_ch));
+            break;
+        case '}':
+            tok = make_unique<Token>(TOKEN_TYPE::RBRACE, string(1, m_ch));
+            break;
+        case '(':
+            tok = make_unique<Token>(TOKEN_TYPE::LPAREN, string(1, m_ch));
+            break;
+        case ')':
+            tok = make_unique<Token>(TOKEN_TYPE::RPAREN, string(1, m_ch));
+            break;
+        case '[':
+            tok = make_unique<Token>(TOKEN_TYPE::LBRACKET, string(1, m_ch));
+            break;
+        case ']':
+            tok = make_unique<Token>(TOKEN_TYPE::RBRACKET, string(1, m_ch));
+            break;
+        case '"':
+            tok = make_unique<Token>(TOKEN_TYPE::STRING, read_string());
+            break;
+        case 0:
+            tok = make_unique<Token>(TOKEN_TYPE::EOF_, string(""));
+            break;
+        default:
+            if (is_letter(m_ch)) {
+                string literal = read_identifier();
+                tok = make_unique<Token>(Token::lookup_ident(literal), literal);
+                return tok;
+            } else if (is_digit(m_ch)) {
+                string literal = read_number();
+                tok = make_unique<Token>(TOKEN_TYPE::INT, literal);
+                return tok;
+            } else {
+                tok = make_unique<Token>(TOKEN_TYPE::ILLEGAL, string(1, m_ch));
+            }
 
-        break;
+            break;
     }
 
     read_char();
@@ -132,7 +132,6 @@ char Lexer::peed_char() {
 }
 
 string Lexer::capture_char(int number) {
-
     string literal(1, m_ch);
 
     while (--number > 0) {

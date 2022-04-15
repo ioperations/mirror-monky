@@ -1,7 +1,9 @@
 #include "Token.hpp"
+
+#include <iostream>
+
 #include "Common.hpp"
 #include "Constant.hpp"
-#include <iostream>
 
 using namespace mirror;
 using namespace mirror::token;
@@ -18,7 +20,7 @@ Token::Token(TOKEN_TYPE token_type, string literal)
     : m_type(token_type), m_literal(literal) {}
 Token::~Token() {}
 
-std::ostream &operator<<(ostream &os, const Token &t) {
+std::ostream& operator<<(ostream& os, const Token& t) {
     os << "{ ";
     os << "type : " << static_cast<underlying_type<TOKEN_TYPE>::type>(t.m_type)
        << ", literal : " << t.m_literal.c_str();

@@ -1,34 +1,33 @@
 #ifndef OBJECT_BOOLEAN_HPP
 #define OBJECT_BOOLEAN_HPP
 
+#include <memory>
+
 #include "Hashable.hpp"
 #include "Object.hpp"
-#include <memory>
 
 using namespace std;
 namespace mirror {
 namespace object {
 class Boolean : public Object, public Hashable {
-  public:
+   public:
     bool m_value;
 
-  public:
+   public:
     Boolean(bool b) : m_value(b){};
-    bool operator==(const Boolean &o1) {
-        return o1.m_value > m_value;
-    };
+    bool operator==(const Boolean& o1) { return o1.m_value > m_value; };
 
-  public:
+   public:
     OBJECT_TYPE type() override { return OBJECT_TYPE::BOOLEAN_OBJ; };
     string Inspect() override { return m_value ? "true" : "false"; };
 
-  public:
+   public:
     HashKey hash_key() override {
-         HashKey hk(type(), m_value ? 1 : 0);
-		 return hk;
+        HashKey hk(type(), m_value ? 1 : 0);
+        return hk;
     };
 };
 
-} // namespace object
-}
+}  // namespace object
+}  // namespace mirror
 #endif /* OBJECT_BOOLEAN_HPP */

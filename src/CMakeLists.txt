@@ -9,6 +9,8 @@ add_subdirectory(repl)
 add_subdirectory(object)
 add_subdirectory(evaluator)
 
+target_include_directories(mirror  PUBLIC ".")
+
 target_link_libraries(mirror
   PRIVATE
   	common

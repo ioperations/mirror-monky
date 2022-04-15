@@ -8,12 +8,12 @@ using namespace std;
 
 namespace mirror {
 class Statement : public Node {
-  public:
+   public:
     virtual ~Statement(){};
 
-  public:
+   public:
     virtual string token_literal() = 0;
     virtual string to_string() = 0;
 };
-}
+}  // namespace mirror
 #endif /* STATEMENT_HPP */

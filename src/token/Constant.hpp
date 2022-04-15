@@ -8,92 +8,92 @@ namespace mirror {
 
 namespace token {
 enum class TOKEN_TYPE {
-    ILLEGAL, // "ILLEGAL"
-    EOF_,    // "EOF"
+    ILLEGAL,  // "ILLEGAL"
+    EOF_,     // "EOF"
 
     // Identifiers + literals
-    IDENT,  // "IDENT" // add, foobar, x, y, ...
-    INT,    // "INT"   // 1343456
-    STRING, // "foobar"
+    IDENT,   // "IDENT" // add, foobar, x, y, ...
+    INT,     // "INT"   // 1343456
+    STRING,  // "foobar"
 
     // Operators
-    ASSIGN,   // "="
-    PLUS,     // "+"
-    MINUS,    // "-"
-    BANG,     // "!"
-    ASTERISK, // "*"
-    SLASH,    // "/"
+    ASSIGN,    // "="
+    PLUS,      // "+"
+    MINUS,     // "-"
+    BANG,      // "!"
+    ASTERISK,  // "*"
+    SLASH,     // "/"
 
-    LT, // "<"
-    GT, // ">"
+    LT,  // "<"
+    GT,  // ">"
 
-    EQ,     // "=="
-    NOT_EQ, // "!="
+    EQ,      // "=="
+    NOT_EQ,  // "!="
 
     // Delimiters
-    COMMA,     // ","
-    SEMICOLON, // ";"
-    COLON,     // ":"
+    COMMA,      // ","
+    SEMICOLON,  // ";"
+    COLON,      // ":"
 
-    LPAREN,   // "("
-    RPAREN,   // ")"
-    LBRACE,   // "{"
-    RBRACE,   // "}"
-    LBRACKET, // "["
-    RBRACKET, // "]"
+    LPAREN,    // "("
+    RPAREN,    // ")"
+    LBRACE,    // "{"
+    RBRACE,    // "}"
+    LBRACKET,  // "["
+    RBRACKET,  // "]"
     // Keywords
-    FUNCTION, // "FUNCTION"
-    LET,      // "LET"
-    TRUE_,    // "TRUE"
-    FALSE_,   // "FALSE"
-    IF,       // "IF"
-    ELSE,     // "ELSE"
-    RETURN,   // "RETURN"
+    FUNCTION,  // "FUNCTION"
+    LET,       // "LET"
+    TRUE_,     // "TRUE"
+    FALSE_,    // "FALSE"
+    IF,        // "IF"
+    ELSE,      // "ELSE"
+    RETURN,    // "RETURN"
 };
 
 const string TOKEN_TYPE_VALUE[] = {
     "ILLEGAL", "EOF",
 
     // Identifiers + literals
-    "IDENT",  // add, foobar, x, y, ...,
-    "INT",    // 1343456,
-    "STRING", // "foobar"
+    "IDENT",   // add, foobar, x, y, ...,
+    "INT",     // 1343456,
+    "STRING",  // "foobar"
 
     // Operators
-    "ASSIGN",   // "="
-    "PLUS",     // "+"
-    "MINUS",    // "-"
-    "BANG",     // "!"
-    "ASTERISK", // "*"
-    "SLASH",    // "/"
+    "ASSIGN",    // "="
+    "PLUS",      // "+"
+    "MINUS",     // "-"
+    "BANG",      // "!"
+    "ASTERISK",  // "*"
+    "SLASH",     // "/"
 
-    "LT", // "<"
-    "GT", // ">"
+    "LT",  // "<"
+    "GT",  // ">"
 
-    "EQ",     // "=="
-    "NOT_EQ", // "!="
+    "EQ",      // "=="
+    "NOT_EQ",  // "!="
 
     // Delimiters
-    "COMMA",     // ","
-    "SEMICOLON", // ";"
+    "COMMA",      // ","
+    "SEMICOLON",  // ";"
     "COLON",      //= ":"
-    "LPAREN",    // "("
-    "RPAREN",    // ")"
-    "LBRACE",    // "{"
-    "RBRACE",    // "}"
-    "LBRACKET",  // "["
-    "RBRACKET",  // "]"
+    "LPAREN",     // "("
+    "RPAREN",     // ")"
+    "LBRACE",     // "{"
+    "RBRACE",     // "}"
+    "LBRACKET",   // "["
+    "RBRACKET",   // "]"
 
     // Keywords
-    "FUNCTION", // "FUNCTION"
-    "LET",      // "LET"
-    "TRUE_",    // "TRUE"
-    "FALSE_",   // "FALSE"
-    "IF",       // "IF"
-    "ELSE",     // "ELSE"
-    "RETURN",   // "RETURN"
+    "FUNCTION",  // "FUNCTION"
+    "LET",       // "LET"
+    "TRUE_",     // "TRUE"
+    "FALSE_",    // "FALSE"
+    "IF",        // "IF"
+    "ELSE",      // "ELSE"
+    "RETURN",    // "RETURN"
 };
 
-} // namespace token
-}
+}  // namespace token
+}  // namespace mirror
 #endif /* TOKEN_CONSTANT_HPP */

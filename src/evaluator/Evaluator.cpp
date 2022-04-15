@@ -1,4 +1,11 @@
 #include "Evaluator.hpp"
+
+#include <algorithm>
+#include <any>
+#include <cstddef>
+#include <iostream>
+#include <memory>
+
 #include "../ast/Boolean.hpp"
 #include "../object/Boolean.hpp"
 #include "Array.hpp"
@@ -32,11 +39,6 @@
 #include "ReturnValue.hpp"
 #include "String.hpp"
 #include "StringLiteral.hpp"
-#include <algorithm>
-#include <any>
-#include <cstddef>
-#include <iostream>
-#include <memory>
 
 using namespace mirror;
 using namespace object;
@@ -56,48 +58,45 @@ shared_ptr<Error> new_error(string format, ...) {
     for (int i = 0; i < format.size(); i++) {
         auto c = format[i];
         switch (c) {
-        case 'c': {
-            char c = (char)va_arg(argptr, int);
-            str += c;
-            break;
-        }
-        case 'd': {
-            int d = va_arg(argptr, int);
-            str += to_string(d);
-            break;
-        }
-        case 's': {
-            char *s = va_arg(argptr, char *);
-            str += s;
-            break;
-        }
+            case 'c': {
+                char c = (char)va_arg(argptr, int);
+                str += c;
+                break;
+            }
+            case 'd': {
+                int d = va_arg(argptr, int);
+                str += to_string(d);
+                break;
+            }
+            case 's': {
+                char* s = va_arg(argptr, char*);
+                str += s;
+                break;
+            }
         }
     }
 
     va_end(argptr);
-
 
     ret->m_message = str;
 
     return ret;
 }
 
-shared_ptr<Object> Evaluator::eval(Node *node, Environment *env) {
-
-    if (auto cast_node = dynamic_cast<Program *>(node)) {
-
+shared_ptr<Object> Evaluator::eval(Node* node, Environment* env) {
+    if (auto cast_node = dynamic_cast<Program*>(node)) {
         return eval_program(*cast_node, *env);
     }
 
-    if (auto cast_node = dynamic_cast<BlockStatement *>(node)) {
+    if (auto cast_node = dynamic_cast<BlockStatement*>(node)) {
         return eval_block_statement(cast_node, env);
     }
 
-    if (auto cast_node = dynamic_cast<ExpressionStatement *>(node)) {
+    if (auto cast_node = dynamic_cast<ExpressionStatement*>(node)) {
         return eval(cast_node->m_expression.get(), env);
     }
 
-    if (auto cast_node = dynamic_cast<ReturnStatement *>(node)) {
+    if (auto cast_node = dynamic_cast<ReturnStatement*>(node)) {
         auto val = eval(cast_node->m_return_value.get(), env);
         if (is_error(val)) {
             return val;
@@ -106,29 +105,28 @@ shared_ptr<Object> Evaluator::eval(Node *node, Environment *env) {
         return make_shared<ReturnValue>(val);
     }
 
-    if (auto cast_node = dynamic_cast<LetStatement *>(node)) {
+    if (auto cast_node = dynamic_cast<LetStatement*>(node)) {
         auto val = eval(cast_node->m_value.get(), env);
         if (is_error(val)) {
             return val;
         }
 
-
         env->set(cast_node->m_name->m_value, val);
     }
 
-    if (auto cast_node = dynamic_cast<IntegerLiteral *>(node)) {
+    if (auto cast_node = dynamic_cast<IntegerLiteral*>(node)) {
         return make_shared<Integer>(cast_node->m_value);
     }
 
-    if (auto cast_node = dynamic_cast<t_ast_Boolean *>(node)) {
+    if (auto cast_node = dynamic_cast<t_ast_Boolean*>(node)) {
         return native_bool_to_boolean_object(cast_node->m_value);
     }
 
-    if (auto cast_node = dynamic_cast<StringLiteral *>(node)) {
+    if (auto cast_node = dynamic_cast<StringLiteral*>(node)) {
         return make_shared<String>(cast_node->m_value);
     }
 
-    if (auto cast_node = dynamic_cast<PrefixExpression *>(node)) {
+    if (auto cast_node = dynamic_cast<PrefixExpression*>(node)) {
         auto right = eval(cast_node->m_right.get(), env);
         if (is_error(right)) {
             return right;
@@ -137,7 +135,7 @@ shared_ptr<Object> Evaluator::eval(Node *node, Environment *env) {
         return eval_prefix_expression(cast_node->m_operator, right.get());
     }
 
-    if (auto cast_node = dynamic_cast<InfixExpression *>(node)) {
+    if (auto cast_node = dynamic_cast<InfixExpression*>(node)) {
         auto left = eval(cast_node->m_left.get(), env);
         if (is_error(left)) {
             return left;
@@ -152,22 +150,21 @@ shared_ptr<Object> Evaluator::eval(Node *node, Environment *env) {
                                      right.get());
     }
 
-    if (auto cast_node = dynamic_cast<IfExpression *>(node)) {
-
+    if (auto cast_node = dynamic_cast<IfExpression*>(node)) {
         return eval_if_expression(cast_node, env);
     }
 
-    if (auto cast_node = dynamic_cast<Identifier *>(node)) {
+    if (auto cast_node = dynamic_cast<Identifier*>(node)) {
         return eval_identifier(cast_node, env);
     }
 
-    if (auto cast_node = dynamic_cast<FunctionLiteral *>(node)) {
+    if (auto cast_node = dynamic_cast<FunctionLiteral*>(node)) {
         auto params = cast_node->m_parameters;
         auto body = cast_node->m_body;
         return make_shared<Function>(params, body, env);
     }
 
-    if (auto cast_node = dynamic_cast<CallExpression *>(node)) {
+    if (auto cast_node = dynamic_cast<CallExpression*>(node)) {
         auto funciton = eval(cast_node->m_function.get(), env);
         if (is_error(funciton)) {
             return funciton;
@@ -181,8 +178,7 @@ shared_ptr<Object> Evaluator::eval(Node *node, Environment *env) {
         return apply_function(funciton, args);
     }
 
-    if (auto cast_node = dynamic_cast<ArrayLiteral *>(node)) {
-
+    if (auto cast_node = dynamic_cast<ArrayLiteral*>(node)) {
         auto elements = eval_expressions(*(cast_node->m_elements), env);
 
         if (elements.size() == 1 && is_error(elements[0])) {
@@ -192,7 +188,7 @@ shared_ptr<Object> Evaluator::eval(Node *node, Environment *env) {
         return make_shared<Array>(elements);
     }
 
-    if (auto cast_node = dynamic_cast<IndexExpression *>(node)) {
+    if (auto cast_node = dynamic_cast<IndexExpression*>(node)) {
         auto left = eval(cast_node->m_left.get(), env);
         if (is_error(left)) {
             return left;
@@ -206,28 +202,25 @@ shared_ptr<Object> Evaluator::eval(Node *node, Environment *env) {
         return eval_index_expression(left.get(), index.get());
     }
 
-    if (auto cast_node = dynamic_cast<HashLiteral *>(node)) {
-
+    if (auto cast_node = dynamic_cast<HashLiteral*>(node)) {
         return eval_hash_literal(cast_node, env);
     }
 
     return nullptr;
 }
 
-shared_ptr<Object> Evaluator::eval_program(Program &program, Environment &env) {
+shared_ptr<Object> Evaluator::eval_program(Program& program, Environment& env) {
     auto result = make_shared<Object>();
 
-
     for (int i = 0; i < program.m_statements.size(); i++) {
-
         auto statement = (program.m_statements[i]).get();
         result = eval(statement, &env);
 
-        if (auto cast_result = dynamic_cast<ReturnValue *>(result.get())) {
+        if (auto cast_result = dynamic_cast<ReturnValue*>(result.get())) {
             return cast_result->m_value;
         }
 
-        if (auto cast_result = dynamic_cast<Error *>(result.get())) {
+        if (auto cast_result = dynamic_cast<Error*>(result.get())) {
             return result;
         }
     }
@@ -235,7 +228,7 @@ shared_ptr<Object> Evaluator::eval_program(Program &program, Environment &env) {
     return result;
 }
 
-shared_ptr<Object> Evaluator::eval_prefix_expression(string op, Object *right) {
+shared_ptr<Object> Evaluator::eval_prefix_expression(string op, Object* right) {
     if (op == "!") {
         return eval_bang_operator_expression(right);
     }
@@ -248,30 +241,30 @@ shared_ptr<Object> Evaluator::eval_prefix_expression(string op, Object *right) {
                      Object::object_type_value(right->type()).c_str());
 }
 
-shared_ptr<Object> Evaluator::eval_bang_operator_expression(Object *right) {
-    if (auto cast_node = dynamic_cast<object::Boolean *>(right)) {
+shared_ptr<Object> Evaluator::eval_bang_operator_expression(Object* right) {
+    if (auto cast_node = dynamic_cast<object::Boolean*>(right)) {
         return make_shared<object::Boolean>(!cast_node->m_value);
     }
 
-    if (auto cast_node = dynamic_cast<Null *>(right)) {
+    if (auto cast_node = dynamic_cast<Null*>(right)) {
         return make_shared<object::Boolean>(true);
     }
 
     return make_shared<object::Boolean>(false);
 }
 
-shared_ptr<Object>
-Evaluator::eval_minus_prefix_operator_expression(Object *right) {
+shared_ptr<Object> Evaluator::eval_minus_prefix_operator_expression(
+    Object* right) {
     if (right->type() != OBJECT_TYPE::INTEGER_OBJ) {
         return new_error("ss", "unknown operator: -",
                          Object::object_type_value(right->type()).c_str());
     }
-    auto value = static_cast<Integer *>(right)->m_value;
+    auto value = static_cast<Integer*>(right)->m_value;
     return make_shared<Integer>(-value);
 }
 
-shared_ptr<Object> Evaluator::eval_infix_expression(string op, Object *left,
-                                                    Object *right) {
+shared_ptr<Object> Evaluator::eval_infix_expression(string op, Object* left,
+                                                    Object* right) {
     if (left->type() == OBJECT_TYPE::INTEGER_OBJ &&
         right->type() == OBJECT_TYPE::INTEGER_OBJ) {
         return eval_integer_infix_expression(op, left, right);
@@ -283,10 +276,8 @@ shared_ptr<Object> Evaluator::eval_infix_expression(string op, Object *left,
     }
 
     if (op == "==") {
-
-        if (auto cast_left = static_cast<object::Boolean *>(left)) {
-
-            auto cast_right = static_cast<object::Boolean *>(right);
+        if (auto cast_left = static_cast<object::Boolean*>(left)) {
+            auto cast_right = static_cast<object::Boolean*>(right);
 
             return native_bool_to_boolean_object(cast_left->m_value ==
                                                  cast_right->m_value);
@@ -298,10 +289,8 @@ shared_ptr<Object> Evaluator::eval_infix_expression(string op, Object *left,
     }
 
     if (left->type() != right->type()) {
-
         auto err_str = Object::object_type_value(left->type()) + " " + op +
                        " " + Object::object_type_value(right->type());
-
 
         return new_error("ss", "type mismatch: ", err_str.c_str());
     }
@@ -312,10 +301,10 @@ shared_ptr<Object> Evaluator::eval_infix_expression(string op, Object *left,
 }
 
 shared_ptr<Object> Evaluator::eval_integer_infix_expression(string op,
-                                                            Object *left,
-                                                            Object *right) {
-    auto left_value = static_cast<Integer *>(left)->m_value;
-    auto right_value = static_cast<Integer *>(right)->m_value;
+                                                            Object* left,
+                                                            Object* right) {
+    auto left_value = static_cast<Integer*>(left)->m_value;
+    auto right_value = static_cast<Integer*>(right)->m_value;
 
     if (op == "+") {
         return make_shared<Integer>(left_value + right_value);
@@ -358,9 +347,8 @@ shared_ptr<Object> Evaluator::native_bool_to_boolean_object(bool input) {
     return make_shared<object::Boolean>(input);
 }
 
-shared_ptr<Object> Evaluator::eval_if_expression(IfExpression *ie,
-                                                 Environment *env) {
-
+shared_ptr<Object> Evaluator::eval_if_expression(IfExpression* ie,
+                                                 Environment* env) {
     auto condition = eval(ie->m_condition.get(), env);
     if (is_error(condition)) {
         return condition;
@@ -371,7 +359,7 @@ shared_ptr<Object> Evaluator::eval_if_expression(IfExpression *ie,
     } else if (ie->m_alternative != nullptr) {
         return eval(ie->m_alternative.get(), env);
     } else {
-		return shared_ptr<Object>(make_shared<Null>());
+        return shared_ptr<Object>(make_shared<Null>());
     }
 }
 
@@ -383,21 +371,20 @@ bool Evaluator::is_error(shared_ptr<Object> obj) {
     return false;
 }
 
-bool Evaluator::is_truthy(Object *obj) {
-
-    if (auto cast_obj = static_cast<object::Boolean *>(obj)) {
+bool Evaluator::is_truthy(Object* obj) {
+    if (auto cast_obj = static_cast<object::Boolean*>(obj)) {
         return cast_obj->m_value ? true : false;
     }
 
-    if (auto cast_node = dynamic_cast<Null *>(obj)) {
+    if (auto cast_node = dynamic_cast<Null*>(obj)) {
         return false;
     }
 
     return true;
 }
 
-shared_ptr<Object> Evaluator::eval_block_statement(BlockStatement *block,
-                                                   Environment *env) {
+shared_ptr<Object> Evaluator::eval_block_statement(BlockStatement* block,
+                                                   Environment* env) {
     auto result = make_shared<Object>();
 
     for (int i = 0; i < block->m_statements.size(); i++) {
@@ -415,9 +402,8 @@ shared_ptr<Object> Evaluator::eval_block_statement(BlockStatement *block,
     return result;
 }
 
-shared_ptr<Object> Evaluator::eval_identifier(Identifier *node,
-                                              Environment *env) {
-
+shared_ptr<Object> Evaluator::eval_identifier(Identifier* node,
+                                              Environment* env) {
     if (auto val = env->get(node->m_value)) {
         return val;
     }
@@ -430,9 +416,8 @@ shared_ptr<Object> Evaluator::eval_identifier(Identifier *node,
     return new_error("ss", "identifier not found: ", node->m_value.c_str());
 }
 
-vector<shared_ptr<Object>>
-Evaluator::eval_expressions(vector<unique_ptr<Expression>> &exps,
-                            Environment *env) {
+vector<shared_ptr<Object>> Evaluator::eval_expressions(
+    vector<unique_ptr<Expression>>& exps, Environment* env) {
     vector<shared_ptr<Object>> result;
 
     for (int i = 0; i < exps.size(); i++) {
@@ -449,11 +434,11 @@ Evaluator::eval_expressions(vector<unique_ptr<Expression>> &exps,
     return result;
 }
 
-shared_ptr<Environment>
-Evaluator::extend_function_env(Function *fn, vector<shared_ptr<Object>> args) {
+shared_ptr<Environment> Evaluator::extend_function_env(
+    Function* fn, vector<shared_ptr<Object>> args) {
     auto env = n_env::new_enclosed_environment(fn->m_env);
 
-    auto &params = *(fn->m_parameters);
+    auto& params = *(fn->m_parameters);
     for (int i = 0; i < params.size(); i++) {
         auto param = *params[i];
         env->set(param.m_value, args[i]);
@@ -463,8 +448,7 @@ Evaluator::extend_function_env(Function *fn, vector<shared_ptr<Object>> args) {
 }
 
 shared_ptr<Object> Evaluator::unwrap_return_value(shared_ptr<Object> obj) {
-
-    auto return_val = dynamic_cast<ReturnValue *>(obj.get());
+    auto return_val = dynamic_cast<ReturnValue*>(obj.get());
     if (return_val) {
         return return_val->m_value;
     }
@@ -474,20 +458,18 @@ shared_ptr<Object> Evaluator::unwrap_return_value(shared_ptr<Object> obj) {
 
 shared_ptr<Object> Evaluator::apply_function(shared_ptr<Object> fn,
                                              vector<shared_ptr<Object>> args) {
-    if (auto function = dynamic_cast<Function *>(fn.get())) {
-
-
+    if (auto function = dynamic_cast<Function*>(fn.get())) {
         auto extendedEnv = extend_function_env(function, args);
         auto evaluated = eval(function->m_body.get(), extendedEnv.get());
 
         return unwrap_return_value(evaluated);
     }
 
-    if (auto builtin = dynamic_cast<Builtin *>(fn.get())) {
+    if (auto builtin = dynamic_cast<Builtin*>(fn.get())) {
         using len_function =
             FunctionCommon<shared_ptr<Object>, vector<shared_ptr<Object>>>;
-        if (auto &cast_builtin_fn =
-                dynamic_cast<len_function &>(*builtin->m_fn)) {
+        if (auto& cast_builtin_fn =
+                dynamic_cast<len_function&>(*builtin->m_fn)) {
             auto ret = cast_builtin_fn(args);
 
             return ret;
@@ -499,25 +481,22 @@ shared_ptr<Object> Evaluator::apply_function(shared_ptr<Object> fn,
 }
 
 shared_ptr<Object> Evaluator::eval_string_infix_expression(string op,
-                                                           Object *left,
-                                                           Object *right) {
-
+                                                           Object* left,
+                                                           Object* right) {
     if (op != "+") {
         auto err_str = Object::object_type_value(left->type()) + " " + op +
                        " " + Object::object_type_value(right->type());
         return new_error("ss", "unknown operator: ", err_str.c_str());
     }
 
-    auto left_val = static_cast<String *>(left)->m_value;
-    auto right_val = static_cast<String *>(right)->m_value;
+    auto left_val = static_cast<String*>(left)->m_value;
+    auto right_val = static_cast<String*>(right)->m_value;
 
     return make_shared<String>(left_val + right_val);
 }
 
-shared_ptr<Object> Evaluator::eval_index_expression(Object *left,
-                                                    Object *index) {
-
-
+shared_ptr<Object> Evaluator::eval_index_expression(Object* left,
+                                                    Object* index) {
     if (left->type() == OBJECT_TYPE::ARRAY_OBJ &&
         index->type() == OBJECT_TYPE::INTEGER_OBJ) {
         ;
@@ -528,28 +507,25 @@ shared_ptr<Object> Evaluator::eval_index_expression(Object *left,
         return eval_hash_index_expression(left, index);
     }
 
-
     return new_error("ss", "index operator not supported: ",
                      Object::object_type_value(left->type()).c_str());
 }
 
-shared_ptr<Object> Evaluator::eval_array_index_expression(Object *left,
-                                                          Object *index) {
-    auto array_object = static_cast<Array *>(left);
-    auto idx = static_cast<Integer *>(index)->m_value;
+shared_ptr<Object> Evaluator::eval_array_index_expression(Object* left,
+                                                          Object* index) {
+    auto array_object = static_cast<Array*>(left);
+    auto idx = static_cast<Integer*>(index)->m_value;
     auto max = int64_t(array_object->m_elements.size() - 1);
-    if (idx < 0 || idx > max)
-		return shared_ptr<Object>(make_shared<Null>());
+    if (idx < 0 || idx > max) return shared_ptr<Object>(make_shared<Null>());
 
     return array_object->m_elements[idx];
 }
 
-shared_ptr<Object> Evaluator::eval_hash_literal(HashLiteral *node,
-                                                Environment *env) {
-
+shared_ptr<Object> Evaluator::eval_hash_literal(HashLiteral* node,
+                                                Environment* env) {
     auto pairs = make_unique<map<HashKey, shared_ptr<HashPair>>>();
 
-    auto &m_pairs = (*node->m_pairs);
+    auto& m_pairs = (*node->m_pairs);
     auto it = m_pairs.begin();
 
     while (it != m_pairs.end()) {
@@ -558,9 +534,10 @@ shared_ptr<Object> Evaluator::eval_hash_literal(HashLiteral *node,
             return key;
         }
 
-        auto hash_key = dynamic_cast<Hashable *>(key.get());
+        auto hash_key = dynamic_cast<Hashable*>(key.get());
         if (!hash_key) {
-			new_error("ss", "unusable as hash key: ", Object::object_type_value(key->type()).c_str());
+            new_error("ss", "unusable as hash key: ",
+                      Object::object_type_value(key->type()).c_str());
         }
 
         auto value = eval(it->second.get(), env);
@@ -588,10 +565,10 @@ shared_ptr<Object> Evaluator::eval_hash_literal(HashLiteral *node,
     return make_shared<Hash>(std::move(pairs));
 }
 
-shared_ptr<Object> Evaluator::eval_hash_index_expression(Object *hash,
-                                                         Object *index) {
-    auto hash_object = static_cast<Hash *>(hash);
-    auto key = dynamic_cast<Hashable *>(index);
+shared_ptr<Object> Evaluator::eval_hash_index_expression(Object* hash,
+                                                         Object* index) {
+    auto hash_object = static_cast<Hash*>(hash);
+    auto key = dynamic_cast<Hashable*>(index);
     if (!key) {
         return new_error("ss", "unusable as hash key: ",
                          Object::object_type_value(index->type()).c_str());

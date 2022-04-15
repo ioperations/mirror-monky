@@ -1,23 +1,23 @@
 #ifndef IFEXPRESSION_HPP
 #define IFEXPRESSION_HPP
 
+#include "../token/Token.hpp"
 #include "BlockStatement.hpp"
 #include "Expression.hpp"
-#include "Token.hpp"
 
 using namespace std;
 namespace mirror {
 class IfExpression : public Expression {
-  public:
-    unique_ptr<Token> m_token; // The 'if' token
+   public:
+    unique_ptr<Token> m_token;  // The 'if' token
     unique_ptr<Expression> m_condition;
     unique_ptr<BlockStatement> m_consequence;
     unique_ptr<BlockStatement> m_alternative;
 
-  public:
-    IfExpression(Token &token) : m_token(new Token(token)) {}
+   public:
+    IfExpression(Token& token) : m_token(new Token(token)) {}
 
-  public:
+   public:
     string token_literal() { return m_token->m_literal; }
     string to_string() {
         string ret = "";
@@ -38,5 +38,5 @@ class IfExpression : public Expression {
         return ret;
     }
 };
-}
+}  // namespace mirror
 #endif /* IFEXPRESSION_HPP */

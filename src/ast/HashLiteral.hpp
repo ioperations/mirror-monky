@@ -1,20 +1,21 @@
 #ifndef HASHLITERAL_HPP
 #define HASHLITERAL_HPP
 
-#include "Expression.hpp"
-#include "Token.hpp"
 #include <memory>
+
+#include "../token/Token.hpp"
+#include "./basic/Expression.hpp"
 
 using namespace std;
 namespace mirror {
 class HashLiteral : public Expression {
-  public:
+   public:
     unique_ptr<Token> m_token;
     unique_ptr<map<shared_ptr<Expression>, shared_ptr<Expression>>> m_pairs;
 
-    HashLiteral(Token &token) : m_token(new Token(token)){};
+    HashLiteral(Token& token) : m_token(new Token(token)){};
 
-  public:
+   public:
     string token_literal() override { return m_token->m_literal; };
     string to_string() override {
         string ret = "";
@@ -22,7 +23,7 @@ class HashLiteral : public Expression {
 
         map<shared_ptr<Expression>, shared_ptr<Expression>>::iterator cursor;
 
-        auto &pairs = *m_pairs;
+        auto& pairs = *m_pairs;
 
         auto size = pairs.size();
         auto count = 0;
@@ -39,5 +40,5 @@ class HashLiteral : public Expression {
         return ret;
     };
 };
-}
+}  // namespace mirror
 #endif /* HASHLITERAL_HPP */

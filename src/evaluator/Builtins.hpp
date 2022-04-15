@@ -1,6 +1,13 @@
 #ifndef BUILTINS_HPP
 #define BUILTINS_HPP
 
+#include <cstddef>
+#include <initializer_list>
+#include <iostream>
+#include <map>
+#include <memory>
+#include <string>
+
 #include "../object/Constant.hpp"
 #include "Array.hpp"
 #include "Builtin.hpp"
@@ -9,12 +16,6 @@
 #include "Null.hpp"
 #include "Object.hpp"
 #include "String.hpp"
-#include <cstddef>
-#include <initializer_list>
-#include <iostream>
-#include <map>
-#include <memory>
-#include <string>
 
 using namespace std;
 using namespace mirror;
@@ -24,7 +25,6 @@ extern map<string, shared_ptr<Builtin>> builtins;
 shared_ptr<Error> new_error(string format, ...);
 
 inline void init_len() {
-
     using len_function =
         FunctionCommon<shared_ptr<Object>, vector<shared_ptr<Object>>>;
 
@@ -35,12 +35,12 @@ inline void init_len() {
                           args.size(), ", want=1"));
         }
 
-        if (auto cast_note = dynamic_cast<String *>(args[0].get())) {
+        if (auto cast_note = dynamic_cast<String*>(args[0].get())) {
             return shared_ptr<Object>(
                 make_shared<Integer>(int64_t(cast_note->m_value.size())));
         }
 
-        if (auto cast_note = dynamic_cast<Array *>(args[0].get())) {
+        if (auto cast_note = dynamic_cast<Array*>(args[0].get())) {
             return shared_ptr<Object>(
                 make_shared<Integer>(int64_t(cast_note->m_elements.size())));
         }
@@ -58,8 +58,6 @@ inline void init_first() {
         FunctionCommon<shared_ptr<Object>, vector<shared_ptr<Object>>>;
 
     auto fn = make_shared<len_function>(*([](vector<shared_ptr<Object>> args) {
-
-
         if (args.size() != 1) {
             return shared_ptr<Object>(
                 new_error("sds", R"(wrong number of arguments. got=)",
@@ -67,14 +65,13 @@ inline void init_first() {
         }
 
         if (args[0]->type() != object::OBJECT_TYPE::ARRAY_OBJ) {
-
             auto type_value = Object::object_type_value(args[0]->type());
             return shared_ptr<Object>(
                 new_error("ss", R"(argument to `first` must be ARRAY, got )",
                           type_value.c_str()));
         }
 
-        auto arr = static_cast<Array *>(args[0].get());
+        auto arr = static_cast<Array*>(args[0].get());
         if (arr->m_elements.size() > 0) {
             return arr->m_elements[0];
         }
@@ -86,7 +83,6 @@ inline void init_first() {
 }
 
 inline void init_last() {
-
     using len_function =
         FunctionCommon<shared_ptr<Object>, vector<shared_ptr<Object>>>;
 
@@ -103,7 +99,7 @@ inline void init_last() {
                           type_value.c_str()));
         }
 
-        auto arr = static_cast<Array *>(args[0].get());
+        auto arr = static_cast<Array*>(args[0].get());
         auto length = arr->m_elements.size();
         if (length > 0) {
             return arr->m_elements[length - 1];
@@ -132,7 +128,7 @@ inline void init_rest() {
                           type_value.c_str()));
         }
 
-        auto arr = static_cast<Array *>(args[0].get());
+        auto arr = static_cast<Array*>(args[0].get());
         auto length = arr->m_elements.size();
         if (length > 0) {
             vector<shared_ptr<Object>> new_elements;
@@ -156,7 +152,6 @@ inline void init_push() {
         FunctionCommon<shared_ptr<Object>, vector<shared_ptr<Object>>>;
 
     auto fn = make_shared<len_function>(*([](vector<shared_ptr<Object>> args) {
-    
         if (args.size() != 2) {
             return shared_ptr<Object>(
                 new_error("sds", R"(wrong number of arguments. got=)",
@@ -170,18 +165,15 @@ inline void init_push() {
                           type_value.c_str()));
         }
 
-        auto arr = static_cast<Array *>(args[0].get());
+        auto arr = static_cast<Array*>(args[0].get());
         auto length = arr->m_elements.size();
         vector<shared_ptr<Object>> new_elements;
-
-        
 
         for (int i = 0; i < length; i++) {
             new_elements.push_back(arr->m_elements[i]);
         }
-    
 
-        new_elements.push_back(shared_ptr<Object>(args[1])) ;
+        new_elements.push_back(shared_ptr<Object>(args[1]));
 
         return shared_ptr<Object>(make_shared<Array>(new_elements));
     }));
@@ -205,7 +197,6 @@ inline void init_puts() {
 }
 
 inline void init_builtins() {
-
     init_len();
     init_first();
     init_last();

@@ -1,8 +1,15 @@
 #include "Parser.hpp"
+
+#include <functional>
+#include <iostream>
+#include <map>
+#include <memory>
+#include <utility>
+#include <vector>
+
 #include "ArrayLiteral.hpp"
 #include "Boolean.hpp"
 #include "CallExpression.hpp"
-
 #include "Common.hpp"
 #include "Constant.hpp"
 #include "Expression.hpp"
@@ -15,11 +22,6 @@
 #include "Lexer.hpp"
 #include "PrefixExpression.hpp"
 #include "StringLiteral.hpp"
-#include <iostream>
-#include <map>
-#include <memory>
-#include <utility>
-#include <vector>
 
 using namespace token;
 using namespace std;
@@ -80,11 +82,11 @@ void Parser::init() {
 
 Parser::Parser(string input) : m_lexer(make_unique<Lexer>(input)) { init(); }
 
-Parser::Parser(Lexer &l) : m_lexer(make_unique<Lexer>(l)) { init(); }
+Parser::Parser(Lexer& l) : m_lexer(make_unique<Lexer>(l)) { init(); }
 
 void Parser::next_token() {
     m_cur_token = std::move(m_peek_token);
-    m_peek_token = std::move(m_lexer->next_token());
+    m_peek_token = m_lexer->next_token();
 }
 
 shared_ptr<Program> Parser::parse_program() {
@@ -103,15 +105,15 @@ shared_ptr<Program> Parser::parse_program() {
 
 unique_ptr<Statement> Parser::parse_statement() {
     switch (m_cur_token->m_type) {
-    case TOKEN_TYPE::LET:
-        return parse_let_statement();
-        break;
-    case TOKEN_TYPE::RETURN:
-        return parse_return_statement();
-        break;
-    default:
-        return parse_expression_statement();
-        break;
+        case TOKEN_TYPE::LET:
+            return parse_let_statement();
+            break;
+        case TOKEN_TYPE::RETURN:
+            return parse_return_statement();
+            break;
+        default:
+            return parse_expression_statement();
+            break;
     }
     return nullptr;
 }
@@ -145,14 +147,12 @@ unique_ptr<ReturnStatement> Parser::parse_return_statement() {
 
     stmt->m_return_value = std::move(exp);
 
-    if (peek_token_is(TOKEN_TYPE::SEMICOLON))
-        next_token();
+    if (peek_token_is(TOKEN_TYPE::SEMICOLON)) next_token();
 
     return stmt;
 }
 
 unique_ptr<LetStatement> Parser::parse_let_statement() {
-
     auto stmt = make_unique<LetStatement>(*m_cur_token);
 
     if (!expect_peek(TOKEN_TYPE::IDENT)) {
@@ -175,8 +175,7 @@ unique_ptr<LetStatement> Parser::parse_let_statement() {
 
     stmt->m_value = std::move(exp);
 
-    if (peek_token_is(TOKEN_TYPE::SEMICOLON))
-        next_token();
+    if (peek_token_is(TOKEN_TYPE::SEMICOLON)) next_token();
 
     return stmt;
 }
@@ -264,14 +263,14 @@ unique_ptr<Expression> Parser::parse_expression(PRECEDENCE precedence) {
         }
 
         next_token();
-        left_exp = it->second(std::move(left_exp)); // parse_infix_expression
+        left_exp = it->second(std::move(left_exp));  // parse_infix_expression
     }
 
     return left_exp;
 }
 
-unique_ptr<Expression>
-Parser::parse_infix_expression(unique_ptr<Expression> left) {
+unique_ptr<Expression> Parser::parse_infix_expression(
+    unique_ptr<Expression> left) {
     auto expression = make_unique<InfixExpression>(
         *m_cur_token, m_cur_token->m_literal, std::move(left));
 
@@ -409,8 +408,8 @@ unique_ptr<vector<unique_ptr<Identifier>>> Parser::parse_function_parameters() {
     return identifiers;
 }
 
-unique_ptr<Expression>
-Parser::parse_call_expression(unique_ptr<Expression> funciton) {
+unique_ptr<Expression> Parser::parse_call_expression(
+    unique_ptr<Expression> funciton) {
     auto exp = make_unique<CallExpression>(*m_cur_token, std::move(funciton));
     exp->m_arguments = parse_expression_list(TOKEN_TYPE::RPAREN);
     return exp;
@@ -444,8 +443,8 @@ unique_ptr<vector<unique_ptr<Expression>>> Parser::parse_call_arguments() {
 }
 
 // copy from parse_call_arguments
-unique_ptr<vector<unique_ptr<Expression>>>
-Parser::parse_expression_list(TOKEN_TYPE end) {
+unique_ptr<vector<unique_ptr<Expression>>> Parser::parse_expression_list(
+    TOKEN_TYPE end) {
     auto args = make_unique<vector<unique_ptr<Expression>>>();
 
     if (peek_token_is(end)) {
@@ -483,15 +482,13 @@ unique_ptr<Expression> Parser::parse_array_literal() {
     return array;
 }
 
-unique_ptr<Expression>
-Parser::parse_index_expression(unique_ptr<Expression> left) {
-
+unique_ptr<Expression> Parser::parse_index_expression(
+    unique_ptr<Expression> left) {
     auto exp = make_unique<IndexExpression>(*m_cur_token, std::move(left));
     next_token();
     exp->m_index = parse_expression(PRECEDENCE::LOWEST);
 
-    if (!expect_peek(TOKEN_TYPE::RBRACKET))
-        return nullptr;
+    if (!expect_peek(TOKEN_TYPE::RBRACKET)) return nullptr;
 
     return exp;
 }
