@@ -1,20 +1,6 @@
 #ifndef TEST_EVALUATOR_HPP
 #define TEST_EVALUATOR_HPP
 
-#include "../object/Boolean.hpp"
-
-#include "Array.hpp"
-#include "Function.hpp"
-#include "Hash.hpp"
-#include "Integer.hpp"
-#include "Object.hpp"
-#include "String.hpp"
-#include "catch.hpp"
-
-#include "Environment.hpp"
-#include "Evaluator.hpp"
-#include "Lexer.hpp"
-#include "Parser.hpp"
 #include <any>
 #include <cstddef>
 #include <iostream>
@@ -23,11 +9,24 @@
 #include <tuple>
 #include <typeindex>
 
+#include "../object/Boolean.hpp"
+#include "Array.hpp"
+#include "Environment.hpp"
+#include "Evaluator.hpp"
+#include "Function.hpp"
+#include "Hash.hpp"
+#include "Integer.hpp"
+#include "Lexer.hpp"
+#include "Object.hpp"
+#include "Parser.hpp"
+#include "String.hpp"
+#include "catch.hpp"
+
 using namespace mirror;
 using namespace std;
 
-void test_null_object(Object *obj) {
-    auto cast_obj = static_cast<Null *>(obj);
+void test_null_object(Object* obj) {
+    auto cast_obj = static_cast<Null*>(obj);
     REQUIRE(obj->type() == object::OBJECT_TYPE::NULL_OBJ);
 
     REQUIRE((obj->Inspect() == "null"));
@@ -37,7 +36,6 @@ shared_ptr<Object> test_eval(string input) {
     Lexer l(input);
     Parser p(l);
     auto program = p.parse_program();
-
 
     // for (auto tok = l.next_token(); (*tok).m_type != TOKEN_TYPE::EOF_;
     //     tok = l.next_token()) {
@@ -50,18 +48,17 @@ shared_ptr<Object> test_eval(string input) {
     return e.eval(program.get(), env.get());
 }
 
-void test_integer_object(Object &obj, int64_t expected) {
-    auto &result = static_cast<Integer &>(obj);
+void test_integer_object(Object& obj, int64_t expected) {
+    auto& result = static_cast<Integer&>(obj);
     REQUIRE(result.m_value == expected);
 }
 
-void test_boolean_object(Object &obj, bool expected) {
-    auto &result = static_cast<object::Boolean &>(obj);
+void test_boolean_object(Object& obj, bool expected) {
+    auto& result = static_cast<object::Boolean&>(obj);
     REQUIRE(result.m_value == expected);
 }
 
 TEST_CASE("test eval integer expression") {
-
     vector<std::tuple<string, int64_t>> tests = {
         {"5", 5},
         {"10", 10},
@@ -164,14 +161,12 @@ TEST_CASE("TestIfElseExpressions") {
         }
 
         if (expected_value_type == std::type_index(typeid(nullptr))) {
-
             test_null_object(evaluated.get());
         }
     }
 }
 
 TEST_CASE("TestReturnStatements") {
-
     vector<tuple<string, int64_t>> tests = {
         {"return 10;", 10},
         {"return 10; 9;", 10},
@@ -215,7 +210,6 @@ f(10);)",
         auto test = tests[i];
         auto input = get<0>(test);
         auto expected_value = get<1>(test);
-
 
         auto evaluated = test_eval(input);
         test_integer_object(*evaluated, expected_value);
@@ -280,10 +274,9 @@ TEST_CASE("test error handling") {
 
         auto evaluated = test_eval(input);
 
-        auto err_obj = dynamic_cast<Error *>(evaluated.get());
+        auto err_obj = dynamic_cast<Error*>(evaluated.get());
 
         REQUIRE(err_obj->m_message == expected_value);
-
     }
 }
 TEST_CASE("TestLetStatements") {
@@ -309,7 +302,7 @@ TEST_CASE("TestFunctionObject") {
 
     auto evaluated = test_eval(input);
 
-    auto fn = static_cast<Function *>(evaluated.get());
+    auto fn = static_cast<Function*>(evaluated.get());
 
     REQUIRE((*fn->m_parameters).size() == 1);
     REQUIRE((*fn->m_parameters)[0]->to_string() == "x");
@@ -359,7 +352,7 @@ TEST_CASE("TestStringLiteral") {
     auto input = R"("Hello World!")";
 
     auto evaluated = test_eval(input);
-    auto str = static_cast<String *>(evaluated.get());
+    auto str = static_cast<String*>(evaluated.get());
 
     REQUIRE(str->m_value == "Hello World!");
 }
@@ -368,7 +361,7 @@ TEST_CASE("TestStringConcatenation") {
     auto input = R"("Hello" + " " + "World!")";
 
     auto evaluated = test_eval(input);
-    auto str = static_cast<String *>(evaluated.get());
+    auto str = static_cast<String*>(evaluated.get());
 
     REQUIRE(str->m_value == "Hello World!");
 }
@@ -410,14 +403,14 @@ TEST_CASE("TestBuiltinFunctions") {
             auto expected_p = std::any_cast<int>(expected_value);
             test_integer_object(*evaluated, expected_p);
         } else if (t_index == std::type_index(typeid(string))) {
-            auto err = static_cast<Error *>(evaluated.get());
+            auto err = static_cast<Error*>(evaluated.get());
             auto expected_cast = std::any_cast<string>(expected_value);
             REQUIRE(err->m_message == expected_cast);
         } else if (t_index == std::type_index(typeid(nullptr))) {
-            auto cast_node = static_cast<Null *>(evaluated.get());
+            auto cast_node = static_cast<Null*>(evaluated.get());
             test_null_object(evaluated.get());
         } else if (t_index == std::type_index(typeid(vector<int>))) {
-            auto cast_node = static_cast<Array *>(evaluated.get());
+            auto cast_node = static_cast<Array*>(evaluated.get());
             auto cast_expected = any_cast<vector<int>>(expected_value);
 
             REQUIRE(cast_node->m_elements.size() == cast_expected.size());
@@ -435,7 +428,7 @@ TEST_CASE("TestArrayLiterals") {
 
     auto evaluated = test_eval(input);
 
-    auto result = dynamic_cast<Array *>(evaluated.get());
+    auto result = dynamic_cast<Array*>(evaluated.get());
     REQUIRE(result->m_elements.size() == 3);
 
     test_integer_object(*result->m_elements[0], 1);
@@ -567,7 +560,7 @@ TEST_CASE("TestHashLiterals") {
 		)";
 
     auto evaluated = test_eval(input);
-    auto result = static_cast<Hash *>(evaluated.get());
+    auto result = static_cast<Hash*>(evaluated.get());
 
     map<HashKey, int64_t> expected = {
         {((make_shared<String>("one"))->hash_key()), 1},
@@ -591,7 +584,6 @@ TEST_CASE("TestHashLiterals") {
 }
 
 TEST_CASE("TestHashIndexExpressions") {
-
     vector<tuple<string, any>> tests = {
         {
             R"({"foo": 5}["foo"])",
@@ -634,7 +626,7 @@ TEST_CASE("TestHashIndexExpressions") {
             auto integer = any_cast<int>(expected_value);
 
             test_integer_object(*evaluated, integer);
-        } catch (const std::bad_any_cast &e) {
+        } catch (const std::bad_any_cast& e) {
             // std::cout << e.what() << '\n';
             test_null_object(evaluated.get());
         }

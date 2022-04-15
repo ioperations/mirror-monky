@@ -1,13 +1,17 @@
 #ifndef TEST_PARSER_HPP
 #define TEST_PARSER_HPP
 
-#include "Expression.hpp"
-#include "ExpressionStatement.hpp"
-#include "catch.hpp"
+#include <any>
+#include <iostream>
+#include <string>
+#include <typeindex>
+#include <utility>
 
 #include "ArrayLiteral.hpp"
 #include "Boolean.hpp"
 #include "CallExpression.hpp"
+#include "Expression.hpp"
+#include "ExpressionStatement.hpp"
 #include "FunctionLiteral.hpp"
 #include "HashLiteral.hpp"
 #include "IfExpression.hpp"
@@ -20,37 +24,32 @@
 #include "PrefixExpression.hpp"
 #include "ReturnStatement.hpp"
 #include "StringLiteral.hpp"
-#include <any>
-#include <iostream>
-#include <string>
-#include <typeindex>
-#include <utility>
+#include "catch.hpp"
 
 using namespace mirror;
 using namespace std;
 using namespace ast;
 
-void test_literal_expression(Expression &exp, std::any expected_value);
-void test_identifier(Expression *exp, string value);
+void test_literal_expression(Expression& exp, std::any expected_value);
+void test_identifier(Expression* exp, string value);
 
-void test_integer_literal(Expression &exp, int64_t value) {
-    auto &integ = static_cast<IntegerLiteral &>(exp);
+void test_integer_literal(Expression& exp, int64_t value) {
+    auto& integ = static_cast<IntegerLiteral&>(exp);
 
     REQUIRE(integ.m_value == value);
     REQUIRE(integ.token_literal() == to_string(value));
 }
 
-void check_parser_errors(Parser &p) {
+void check_parser_errors(Parser& p) {
     auto errors = p.errors();
-    if (errors.size() == 0)
-        return;
+    if (errors.size() == 0) return;
 
     for (auto msg : errors) {
         FAIL("parser error====: " + msg);
     }
 }
 
-shared_ptr<Program> check_and_get_program(Parser &p) {
+shared_ptr<Program> check_and_get_program(Parser& p) {
     auto program = p.parse_program();
     // check errors
     check_parser_errors(p);
@@ -64,38 +63,36 @@ shared_ptr<Program> check_and_get_program(Parser &p) {
     return program;
 }
 
-void test_identifier(Expression &exp, string value) {
-    auto &ident = static_cast<Identifier &>(exp);
+void test_identifier(Expression& exp, string value) {
+    auto& ident = static_cast<Identifier&>(exp);
 
     REQUIRE(ident.m_value == value);
     REQUIRE(ident.token_literal() == value);
 }
 
-void test_infix_expression(Expression &exp, any left, string op, any right) {
-    auto &expression = static_cast<InfixExpression &>(exp);
+void test_infix_expression(Expression& exp, any left, string op, any right) {
+    auto& expression = static_cast<InfixExpression&>(exp);
 
     test_literal_expression(*expression.m_left, left);
     REQUIRE(expression.m_operator == op);
     test_literal_expression(*expression.m_right, right);
 }
 
-void test_literal_expression(Expression &exp, std::any expected_value) {
-
+void test_literal_expression(Expression& exp, std::any expected_value) {
     auto expected_value_type = std::type_index(expected_value.type());
     if (expected_value_type == std::type_index(typeid(int))) {
-        REQUIRE(static_cast<IntegerLiteral &>(exp).m_value ==
+        REQUIRE(static_cast<IntegerLiteral&>(exp).m_value ==
                 std::any_cast<int>(expected_value));
     } else if (expected_value_type == std::type_index(typeid(bool))) {
-        REQUIRE(static_cast<Boolean &>(exp).m_value ==
+        REQUIRE(static_cast<Boolean&>(exp).m_value ==
                 std::any_cast<bool>(expected_value));
     } else if (expected_value_type == std::type_index(typeid(string))) {
-        REQUIRE(static_cast<Identifier &>(exp).m_value ==
+        REQUIRE(static_cast<Identifier&>(exp).m_value ==
                 std::any_cast<string>(expected_value));
     }
 }
 
 TEST_CASE("test let statements ", "[parser]") {
-
     using t_tuple = tuple<string, string, std::any>;
 
     vector<t_tuple> tests = {
@@ -114,7 +111,7 @@ TEST_CASE("test let statements ", "[parser]") {
         Parser p(input);
         auto pro = check_and_get_program(p);
         auto stmt = pro->m_statements[0].get();
-        auto r_stmt = static_cast<LetStatement *>(stmt);
+        auto r_stmt = static_cast<LetStatement*>(stmt);
 
         REQUIRE(r_stmt->token_literal() == "let");
 
@@ -125,20 +122,19 @@ TEST_CASE("test let statements ", "[parser]") {
         auto t_index = std::type_index(expected_value.type());
 
         if (t_index == std::type_index(typeid(int))) {
-            REQUIRE(static_cast<IntegerLiteral *>(r_value)->m_value ==
+            REQUIRE(static_cast<IntegerLiteral*>(r_value)->m_value ==
                     std::any_cast<int>(expected_value));
         } else if (t_index == std::type_index(typeid(string))) {
-            REQUIRE(static_cast<Identifier *>(r_value)->m_value ==
+            REQUIRE(static_cast<Identifier*>(r_value)->m_value ==
                     std::any_cast<string>(expected_value));
         } else if (t_index == std::type_index(typeid(bool))) {
-            REQUIRE(static_cast<Boolean *>(r_value)->m_value ==
+            REQUIRE(static_cast<Boolean*>(r_value)->m_value ==
                     std::any_cast<bool>(expected_value));
         }
     }
 }
 
 TEST_CASE("test return statements", "[parser]") {
-
     vector<tuple<string, std::any>> tests = {
         {"return 5;", 5},
         {"return true;", true},
@@ -154,7 +150,7 @@ TEST_CASE("test return statements", "[parser]") {
         Parser p(input);
         auto program = check_and_get_program(p);
         auto stmt = program->m_statements[0].get();
-        auto return_stmt = static_cast<ReturnStatement *>(stmt);
+        auto return_stmt = static_cast<ReturnStatement*>(stmt);
 
         REQUIRE(return_stmt->token_literal() == "return");
 
@@ -173,9 +169,9 @@ TEST_CASE("test Identifier expression", "[parser]") {
     auto program = check_and_get_program(p);
 
     auto stmt = program->m_statements[0].get();
-    auto r_stmt = static_cast<ExpressionStatement *>(stmt);
+    auto r_stmt = static_cast<ExpressionStatement*>(stmt);
 
-    auto ident = static_cast<Identifier *>(r_stmt->m_expression.get());
+    auto ident = static_cast<Identifier*>(r_stmt->m_expression.get());
 
     REQUIRE(ident->m_value == "foobar");
     REQUIRE(ident->token_literal() == "foobar");
@@ -188,8 +184,8 @@ TEST_CASE("test IntegerLiteral expression", "[parser]") {
     auto program = check_and_get_program(p);
     auto stmt = program->m_statements[0].get();
 
-    auto r_stmt = static_cast<ExpressionStatement *>(stmt);
-    auto r_exp = static_cast<IntegerLiteral *>(r_stmt->m_expression.get());
+    auto r_stmt = static_cast<ExpressionStatement*>(stmt);
+    auto r_exp = static_cast<IntegerLiteral*>(r_stmt->m_expression.get());
 
     REQUIRE(r_exp->m_value == 5);
     REQUIRE(r_exp->token_literal() == "5");
@@ -211,9 +207,9 @@ TEST_CASE("test parsing prefix expressions", "[parser]") {
         Parser p(input);
         auto program = check_and_get_program(p);
         auto stmt = program->m_statements[0].get();
-        auto r_stmt = static_cast<ExpressionStatement *>(stmt);
+        auto r_stmt = static_cast<ExpressionStatement*>(stmt);
         auto r_expression =
-            static_cast<PrefixExpression *>(r_stmt->m_expression.get());
+            static_cast<PrefixExpression*>(r_stmt->m_expression.get());
 
         REQUIRE(r_expression->m_operator == expected_op);
 
@@ -253,9 +249,9 @@ TEST_CASE("test parsing infix expressions", "[parser]") {
         Parser p(input);
         auto pro = check_and_get_program(p);
         auto stmt = pro->m_statements[0].get();
-        auto r_stmt = static_cast<ExpressionStatement *>(stmt);
+        auto r_stmt = static_cast<ExpressionStatement*>(stmt);
         auto expression =
-            static_cast<InfixExpression *>(r_stmt->m_expression.get());
+            static_cast<InfixExpression*>(r_stmt->m_expression.get());
 
         test_literal_expression(*expression->m_left, expected_left);
         REQUIRE(expression->m_operator == expected_op);
@@ -389,7 +385,6 @@ TEST_CASE("TestOperatorPrecedenceParsing", "[parser]") {
 }
 
 TEST_CASE("test boolean expression") {
-
     vector<tuple<string, bool>> tests = {
         {"true;", true},
         {"false;", false},
@@ -403,28 +398,27 @@ TEST_CASE("test boolean expression") {
         Parser p(input);
         auto program = check_and_get_program(p);
         auto stmt = program->m_statements[0].get();
-        auto r_stmt = static_cast<ExpressionStatement *>(stmt);
+        auto r_stmt = static_cast<ExpressionStatement*>(stmt);
 
-        auto r_exp = static_cast<Boolean *>(r_stmt->m_expression.get());
+        auto r_exp = static_cast<Boolean*>(r_stmt->m_expression.get());
 
         REQUIRE(r_exp->m_value == expected_value);
     }
 }
 
 TEST_CASE("test if expression") {
-
     auto input = "if (x < y) { x }";
     Parser p(input);
     auto program = check_and_get_program(p);
 
     auto stmt =
-        static_cast<ExpressionStatement *>(program->m_statements[0].get());
+        static_cast<ExpressionStatement*>(program->m_statements[0].get());
 
-    auto exp = static_cast<IfExpression *>(stmt->m_expression.get());
+    auto exp = static_cast<IfExpression*>(stmt->m_expression.get());
 
     test_infix_expression(*exp->m_condition, "x", "<", "y");
 
-    auto consequence = static_cast<ExpressionStatement *>(
+    auto consequence = static_cast<ExpressionStatement*>(
         exp->m_consequence->m_statements[0].get());
     test_identifier(*consequence->m_expression, "x");
 
@@ -438,17 +432,17 @@ TEST_CASE("test if else expression") {
     auto program = check_and_get_program(p);
 
     auto stmt =
-        static_cast<ExpressionStatement *>(program->m_statements[0].get());
+        static_cast<ExpressionStatement*>(program->m_statements[0].get());
 
-    auto exp = static_cast<IfExpression *>(stmt->m_expression.get());
+    auto exp = static_cast<IfExpression*>(stmt->m_expression.get());
 
     test_infix_expression(*exp->m_condition, "x", "<", "y");
 
-    auto consequence = static_cast<ExpressionStatement *>(
+    auto consequence = static_cast<ExpressionStatement*>(
         exp->m_consequence->m_statements[0].get());
     test_identifier(*consequence->m_expression, "x");
 
-    auto alternative = static_cast<ExpressionStatement *>(
+    auto alternative = static_cast<ExpressionStatement*>(
         exp->m_alternative->m_statements[0].get());
     test_identifier(*alternative->m_expression, "y");
 }
@@ -459,9 +453,9 @@ TEST_CASE("test function literal parsing") {
     Parser p(input);
     auto program = check_and_get_program(p);
 
-    auto &stmt = static_cast<ExpressionStatement &>(*program->m_statements[0]);
+    auto& stmt = static_cast<ExpressionStatement&>(*program->m_statements[0]);
 
-    auto &function = static_cast<FunctionLiteral &>(*stmt.m_expression);
+    auto& function = static_cast<FunctionLiteral&>(*stmt.m_expression);
 
     REQUIRE(function.m_parameters->size() == 2);
 
@@ -470,8 +464,8 @@ TEST_CASE("test function literal parsing") {
 
     REQUIRE(function.m_body->m_statements.size() == 1);
 
-    auto &body_stmt =
-        static_cast<ExpressionStatement &>(*(function.m_body->m_statements[0]));
+    auto& body_stmt =
+        static_cast<ExpressionStatement&>(*(function.m_body->m_statements[0]));
 
     test_infix_expression(*body_stmt.m_expression, "x", "+", "y");
 }
@@ -489,9 +483,9 @@ TEST_CASE("test function parameter parsing") {
         Parser p(input);
         auto program = check_and_get_program(p);
 
-        auto &stmt =
-            static_cast<ExpressionStatement &>(*program->m_statements[0]);
-        auto &function = static_cast<FunctionLiteral &>(*stmt.m_expression);
+        auto& stmt =
+            static_cast<ExpressionStatement&>(*program->m_statements[0]);
+        auto& function = static_cast<FunctionLiteral&>(*stmt.m_expression);
 
         REQUIRE(function.m_parameters->size() == expected_params.size());
 
@@ -508,8 +502,8 @@ TEST_CASE("test call expression parsing") {
     Parser p(input);
     auto program = check_and_get_program(p);
 
-    auto &stmt = static_cast<ExpressionStatement &>(*program->m_statements[0]);
-    auto &exp = static_cast<CallExpression &>(*stmt.m_expression);
+    auto& stmt = static_cast<ExpressionStatement&>(*program->m_statements[0]);
+    auto& exp = static_cast<CallExpression&>(*stmt.m_expression);
 
     test_identifier(*exp.m_function, "add");
 
@@ -525,8 +519,8 @@ TEST_CASE("TestStringLiteralExpression") {
     Parser p(input);
     auto program = check_and_get_program(p);
 
-    auto &stmt = static_cast<ExpressionStatement &>(*program->m_statements[0]);
-    auto &exp = static_cast<StringLiteral &>(*stmt.m_expression);
+    auto& stmt = static_cast<ExpressionStatement&>(*program->m_statements[0]);
+    auto& exp = static_cast<StringLiteral&>(*stmt.m_expression);
     REQUIRE(exp.m_value == "hello world");
 }
 
@@ -536,8 +530,8 @@ TEST_CASE("TestParsingArrayLiterals") {
     Parser p(input);
     auto program = check_and_get_program(p);
 
-    auto &stmt = static_cast<ExpressionStatement &>(*program->m_statements[0]);
-    auto &array = static_cast<ArrayLiteral &>(*stmt.m_expression);
+    auto& stmt = static_cast<ExpressionStatement&>(*program->m_statements[0]);
+    auto& array = static_cast<ArrayLiteral&>(*stmt.m_expression);
 
     REQUIRE(array.m_elements->size() == 3);
     test_integer_literal(*(*array.m_elements)[0], 1);
@@ -551,8 +545,8 @@ TEST_CASE("TestParsingIndexExpressions") {
 
     auto program = check_and_get_program(p);
 
-    auto &stmt = static_cast<ExpressionStatement &>(*program->m_statements[0]);
-    auto &exp = static_cast<IndexExpression &>(*stmt.m_expression);
+    auto& stmt = static_cast<ExpressionStatement&>(*program->m_statements[0]);
+    auto& exp = static_cast<IndexExpression&>(*stmt.m_expression);
 
     test_identifier(*exp.m_left, "myArray");
 
@@ -565,8 +559,8 @@ TEST_CASE("TestParsingHashLiteralsStringKeys") {
     Parser p(input);
     auto program = check_and_get_program(p);
 
-    auto &stmt = static_cast<ExpressionStatement &>(*program->m_statements[0]);
-    auto &hash = static_cast<HashLiteral &>(*stmt.m_expression);
+    auto& stmt = static_cast<ExpressionStatement&>(*program->m_statements[0]);
+    auto& hash = static_cast<HashLiteral&>(*stmt.m_expression);
 
     map<string, int64_t> expected = {
         make_pair("one", 1),
@@ -578,7 +572,7 @@ TEST_CASE("TestParsingHashLiteralsStringKeys") {
 
     auto it = hash.m_pairs->begin();
     while (it != hash.m_pairs->end()) {
-        auto literal = static_cast<StringLiteral *>(it->first.get());
+        auto literal = static_cast<StringLiteral*>(it->first.get());
 
         auto expected_value = expected[literal->to_string()];
         test_integer_literal(*it->second, expected_value);
@@ -592,8 +586,8 @@ TEST_CASE("TestParsingEmptyHashLiteral") {
     Parser p(input);
     auto program = check_and_get_program(p);
 
-    auto &stmt = static_cast<ExpressionStatement &>(*program->m_statements[0]);
-    auto &hash = static_cast<HashLiteral &>(*stmt.m_expression);
+    auto& stmt = static_cast<ExpressionStatement&>(*program->m_statements[0]);
+    auto& hash = static_cast<HashLiteral&>(*stmt.m_expression);
 
     REQUIRE(hash.m_pairs->size() == 0);
 }
@@ -604,15 +598,15 @@ TEST_CASE("TestParsingHashLiteralsWithExpressions") {
     Parser p(input);
     auto program = check_and_get_program(p);
 
-    auto &stmt = static_cast<ExpressionStatement &>(*program->m_statements[0]);
-    auto &hash = static_cast<HashLiteral &>(*stmt.m_expression);
+    auto& stmt = static_cast<ExpressionStatement&>(*program->m_statements[0]);
+    auto& hash = static_cast<HashLiteral&>(*stmt.m_expression);
 
     REQUIRE(hash.m_pairs->size() == 3);
 
-    auto tests = map<string, function<void(Expression &)>>{
-        {"one", [](Expression &e) { test_infix_expression(e, 0, "+", 1); }},
-        {"two", [](Expression &e) { test_infix_expression(e, 10, "-", 8); }},
-        {"three", [](Expression &e) { test_infix_expression(e, 15, "/", 5); }},
+    auto tests = map<string, function<void(Expression&)>>{
+        {"one", [](Expression& e) { test_infix_expression(e, 0, "+", 1); }},
+        {"two", [](Expression& e) { test_infix_expression(e, 10, "-", 8); }},
+        {"three", [](Expression& e) { test_infix_expression(e, 15, "/", 5); }},
     };
 
     auto it = hash.m_pairs->begin();
@@ -620,12 +614,11 @@ TEST_CASE("TestParsingHashLiteralsWithExpressions") {
         auto key = it->first;
         auto value = it->second;
 
-        auto literal = static_cast<StringLiteral *>(key.get());
+        auto literal = static_cast<StringLiteral*>(key.get());
         auto test_func = tests[literal->to_string()];
         test_func(*value);
         it++;
     }
-
 }
 
 #endif /* TEST_PARSER_HPP */

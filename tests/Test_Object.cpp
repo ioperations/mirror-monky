@@ -1,11 +1,12 @@
 #ifndef TEST_OBJECT_H
 #define TEST_OBJECT_H
 
+#include <string>
+
 #include "../object/Boolean.hpp"
 #include "Integer.hpp"
 #include "String.hpp"
 #include "catch.hpp"
-#include <string>
 
 using namespace mirror;
 using namespace std;
@@ -42,4 +43,4 @@ TEST_CASE("TestIntegerHashKey") {
     REQUIRE(one1->hash_key() != two1->hash_key());
 }
 
-#endif // TEST_OBJECT_H
+#endif  // TEST_OBJECT_H
