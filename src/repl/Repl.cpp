@@ -51,17 +51,8 @@ void Repl::start() {
 }
 
 void print_anthor_name() {
-    string name = R"(
-	########################
-	#╭━━╮╱╱╱╱╱╱╱╱╭╮        #
-	#╰┃┃╋━━┳┳╮╭━━╋╋┳┳┳┳━┳┳╮#
-	#╭┃┃┫┃┃┃┃┃┃┃┃┃┃╭┫╭┫╋┃╭╯#
-	#╰━━┻┻┻╋╮┃╰┻┻┻┻╯╰╯╰━┻╯ #
-	#╱╱╱╱╱╱╰━╯             #
-	########################
-)";
-
-    cout << name << endl;
+    // string name = R"()";
+    // cout << name << endl;
 }
 
 void print_parser_errors(vector<string> errors) {
